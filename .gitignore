@@ -45,3 +45,7 @@
 Thumbs.db
 ###< OS files ###
 
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
