@@ -1,0 +1,47 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> environment files (sensitive) ###
+# Safe-by-default: do not commit real env files.
+# Commit a template instead (e.g. .env.example / .env.dist).
+/.env
+/.env.*
+!/.env.example
+!/.env.dist
+###< environment files (sensitive) ###
+
+###> uploads / user generated content ###
+/public/uploads/
+###< uploads / user generated content ###
+
+###> keys / certificates (sensitive) ###
+/config/jwt/*.pem
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+###< keys / certificates (sensitive) ###
+
+###> tooling / IDE ###
+/.idea/
+/.vscode/
+*.swp
+*.swo
+###< tooling / IDE ###
+
+###> OS files ###
+.DS_Store
+**/.DS_Store
+Thumbs.db
+###< OS files ###
+
