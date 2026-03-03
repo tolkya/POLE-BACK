@@ -14,9 +14,9 @@ services:
       target: frankenphp_prod
     environment:
       APP_ENV: prod
-      APP_SECRET: ${APP_SECRET}
-      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      # APP_SECRET, MERCURE_*_JWT_KEY, etc. sont fournis par env_file (.env + .env.dev)
+      # Ne PAS les mettre ici avec ${…} : l'interpolation Compose lit uniquement .env (vide),
+      # ce qui écraserait les bonnes valeurs chargées par env_file.
     restart: unless-stopped
 
   database:
