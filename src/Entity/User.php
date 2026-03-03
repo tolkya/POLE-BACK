@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -31,6 +33,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, UserClub>
+     */
+    #[ORM\OneToMany(targetEntity: UserClub::class, mappedBy: 'member')]
+    private Collection $userClubs;
+
+    /**
+     * @var Collection<int, UserActivity>
+     */
+    #[ORM\OneToMany(targetEntity: UserActivity::class, mappedBy: 'member')]
+    private Collection $userActivities;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    public function __construct()
+    {
+        $this->userClubs = new ArrayCollection();
+        $this->userActivities = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -105,5 +129,77 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
 
         return $data;
+    }
+
+    /**
+     * @return Collection<int, UserClub>
+     */
+    public function getUserClubs(): Collection
+    {
+        return $this->userClubs;
+    }
+
+    public function addUserClub(UserClub $userClub): static
+    {
+        if (!$this->userClubs->contains($userClub)) {
+            $this->userClubs->add($userClub);
+            $userClub->setMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserClub(UserClub $userClub): static
+    {
+        if ($this->userClubs->removeElement($userClub)) {
+            // set the owning side to null (unless already changed)
+            if ($userClub->getMember() === $this) {
+                $userClub->setMember(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserActivity>
+     */
+    public function getUserActivities(): Collection
+    {
+        return $this->userActivities;
+    }
+
+    public function addUserActivity(UserActivity $userActivity): static
+    {
+        if (!$this->userActivities->contains($userActivity)) {
+            $this->userActivities->add($userActivity);
+            $userActivity->setMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserActivity(UserActivity $userActivity): static
+    {
+        if ($this->userActivities->removeElement($userActivity)) {
+            // set the owning side to null (unless already changed)
+            if ($userActivity->getMember() === $this) {
+                $userActivity->setMember(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }
