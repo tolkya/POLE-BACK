@@ -17,4 +17,4 @@ lexik_jwt_authentication:
             domain: null
             secure: true
             httpOnly: true
-            split: false
+
