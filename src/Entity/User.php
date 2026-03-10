@@ -66,6 +66,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->userClubs = new ArrayCollection();
         $this->userActivities = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
+        $this->roles = ['ROLE_USER'];
     }
 
     public function getId(): ?int
