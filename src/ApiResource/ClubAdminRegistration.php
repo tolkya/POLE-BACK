@@ -63,5 +63,5 @@ class ClubAdminRegistration
     public ?string $clubCode = null;
 
     #[Groups(['club_admin_reg:read'])]
-    public string $message = 'Votre demande de création de club a été soumise. En attente de validation par un Super Admin.';
+    public string $message = 'Votre club a été créé avec succès. Vous pouvez dès maintenant commencer à le gérer.';
 }
