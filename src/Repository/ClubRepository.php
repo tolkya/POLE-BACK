@@ -16,28 +16,15 @@ class ClubRepository extends ServiceEntityRepository
         parent::__construct($registry, Club::class);
     }
 
-    //    /**
-    //     * @return Club[] Returns an array of Club objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Club
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findByClubCode(string $clubCode): ?Club
+    {
+        if(!str_starts_with($clubCode, 'cde_')) {
+            return null;
+        }
+        $id = (int) substr($clubCode, 4);
+        if ($id <= 0) {
+            return null;
+        }
+        return $this->find($id);
+    }
 }
