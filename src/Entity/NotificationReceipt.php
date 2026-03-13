@@ -4,6 +4,25 @@ namespace App\Entity;
 
 use App\Repository\NotificationReceiptRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use App\State\NotificationReceiptProvider;
+use Symfony\Component\Serializer\Attribute\Groups;
+
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            security: "is_granted('ROLE_SUPER_ADMIN')",
+            provider: NotificationReceiptProvider::class,
+        ),
+        new Patch(
+            security: "is_granted('ROLE_SUPER_ADMIN') and object.getRecipient() == user",
+        ),
+    ],
+    normalizationContext: ['groups' => ['receipt:read']],
+    denormalizationContext: ['groups' => ['receipt:update']],
+)]
 
 #[ORM\Entity(repositoryClass: NotificationReceiptRepository::class)]
 class NotificationReceipt
@@ -11,10 +30,12 @@ class NotificationReceipt
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['receipt:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'notificationReceipts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['receipt:read'])]
     private ?NotificationEvent $event = null;
 
     #[ORM\ManyToOne]
@@ -22,12 +43,15 @@ class NotificationReceipt
     private ?User $recipient = null;
 
     #[ORM\Column]
+    #[Groups(['receipt:read', 'receipt:update'])]
     private bool $isRead = false;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['receipt:read'])]
     private ?\DateTimeImmutable $readAt = null;
 
     #[ORM\Column]
+    #[Groups(['receipt:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
@@ -65,7 +89,7 @@ class NotificationReceipt
         return $this;
     }
 
-    public function isRead(): bool
+    public function GetIsRead(): bool
     {
         return $this->isRead;
     }

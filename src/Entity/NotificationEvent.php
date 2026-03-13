@@ -6,6 +6,7 @@ use App\Repository\NotificationEventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: NotificationEventRepository::class)]
 class NotificationEvent
@@ -13,24 +14,30 @@ class NotificationEvent
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['receipt:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['receipt:read'])]
     private ?string $notifType = null;
 
     #[ORM\Column(length: 30, nullable: true)]
+    #[Groups(['receipt:read'])]
     private ?string $subjectType = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['receipt:read'])]
     private ?int $subjectId = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['receipt:read'])]
     private ?array $context = null;
 
     #[ORM\ManyToOne]
     private ?User $triggeredBy = null;
 
     #[ORM\Column]
+    #[Groups(['receipt:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**

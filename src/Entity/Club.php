@@ -6,6 +6,18 @@ use App\Repository\ClubRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use Symfony\Component\Serializer\Attribute\Groups;
+
+#[ApiResource(
+    operations: [
+        new GetCollection(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Get(security: "is_granted('ROLE_SUPER_ADMIN')"),
+    ],
+    normalizationContext: ['groups' => ['club:read']],
+)]
 
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
@@ -13,18 +25,23 @@ class Club
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['club:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['club:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['club:read'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 180, nullable: true)]
+    #[Groups(['club:read'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['club:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
@@ -46,6 +63,7 @@ class Club
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    #[Groups(['club:read'])]
     public function getClubCode(): ?string
     {
         return $this->id !== null ? 'cde_' . $this->id : null;
