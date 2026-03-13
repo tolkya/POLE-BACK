@@ -16,6 +16,15 @@ class NotificationReceiptRepository extends ServiceEntityRepository
         parent::__construct($registry, NotificationReceipt::class);
     }
 
+    public function countUnread(): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.readAt IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     //    /**
     //     * @return NotificationReceipt[] Returns an array of NotificationReceipt objects
     //     */

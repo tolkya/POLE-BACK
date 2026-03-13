@@ -22,7 +22,7 @@ class StatsController extends AbstractController
         return $this->json([
             'clubs' => $clubRepository->count([]),
             'users' => $userRepository->count([]),
-            'unreadNotifications' => $notificationReceiptRepository->count(['isRead' => false]),
+            'unreadNotifications' => $notificationReceiptRepository->countUnread(),
         ]);
     }
 }

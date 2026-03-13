@@ -42,10 +42,6 @@ class NotificationReceipt
     #[ORM\JoinColumn(nullable: false)]
     private ?User $recipient = null;
 
-    #[ORM\Column]
-    #[Groups(['receipt:read', 'receipt:update'])]
-    private bool $isRead = false;
-
     #[ORM\Column(nullable: true)]
     #[Groups(['receipt:read'])]
     private ?\DateTimeImmutable $readAt = null;
@@ -57,7 +53,6 @@ class NotificationReceipt
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->isRead = false;
     }
 
     public function getId(): ?int
@@ -89,18 +84,19 @@ class NotificationReceipt
         return $this;
     }
 
-    public function GetIsRead(): bool
+    public function getIsRead(): bool
     {
-        return $this->isRead;
+        return $this->readAt !== null;
     }
 
+    #[Groups(['receipt:update'])]
     public function setIsRead(bool $isRead): static
     {
-        $this->isRead = $isRead;
         if ($isRead && $this->readAt === null) {
             $this->readAt = new \DateTimeImmutable();
+        } elseif (!$isRead) {
+            $this->readAt = null;
         }
-
         return $this;
     }
     public function getReadAt(): ?\DateTimeImmutable
