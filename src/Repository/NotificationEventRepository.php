@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Notification;
+use App\Entity\NotificationEvent;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Notification>
+ * @extends ServiceEntityRepository<NotificationEvent>
  */
-class NotificationRepository extends ServiceEntityRepository
+class NotificationEventRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Notification::class);
+        parent::__construct($registry, NotificationEvent::class);
     }
 
     //    /**
-    //     * @return Notification[] Returns an array of Notification objects
+    //     * @return NotificationEvent[] Returns an array of NotificationEvent objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class NotificationRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Notification
+    //    public function findOneBySomeField($value): ?NotificationEvent
     //    {
     //        return $this->createQueryBuilder('n')
     //            ->andWhere('n.exampleField = :val')
