@@ -13,10 +13,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     operations: [
         new GetCollection(
+            uriTemplate: '/notification-receipts',
             security: "is_granted('ROLE_SUPER_ADMIN')",
             provider: NotificationReceiptProvider::class,
         ),
         new Patch(
+            uriTemplate: '/notification-receipts/{id}',
             security: "is_granted('ROLE_SUPER_ADMIN') and object.getRecipient() == user",
         ),
     ],
@@ -84,6 +86,7 @@ class NotificationReceipt
         return $this;
     }
 
+    #[Groups(['receipt:read'])]
     public function getIsRead(): bool
     {
         return $this->readAt !== null;

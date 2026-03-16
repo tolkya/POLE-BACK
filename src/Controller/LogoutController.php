@@ -21,7 +21,7 @@ final class LogoutController extends AbstractController
                 ->withPath('/')
                 ->withSecure(true)
                 ->withHttpOnly(true)
-                ->withSameSite('strict')
+                ->withSameSite('none')
         );
 
         return $response;

@@ -56,9 +56,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['receipt:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['receipt:read'])]
     private ?string $lastName = null;
 
     public function __construct()

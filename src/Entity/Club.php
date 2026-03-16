@@ -13,8 +13,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
-        new GetCollection(security: "is_granted('ROLE_SUPER_ADMIN')"),
-        new Get(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new GetCollection(
+            uriTemplate: '/clubs',
+            security: "is_granted('ROLE_SUPER_ADMIN')",
+        ),
+        new Get(
+            uriTemplate: '/clubs/{id}',
+            security: "is_granted('ROLE_SUPER_ADMIN')",
+        ),
     ],
     normalizationContext: ['groups' => ['club:read']],
 )]

@@ -34,6 +34,7 @@ class NotificationEvent
     private ?array $context = null;
 
     #[ORM\ManyToOne]
+    #[Groups(['receipt:read'])]
     private ?User $triggeredBy = null;
 
     #[ORM\Column]

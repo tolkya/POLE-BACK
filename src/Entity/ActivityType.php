@@ -18,14 +18,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')"),
-        new Get(security: "is_granted('IS_AUTHENTICATED_FULLY')"),
+        new GetCollection(
+            uriTemplate: '/activity-types',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+        ),
+        new Get(
+            uriTemplate: '/activity-types/{id}',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+        ),
         new Post(
+            uriTemplate: '/activity-types',
             security: "is_granted('ROLE_SUPER_ADMIN')",
             processor: ActivityTypeProcessor::class,
         ),
-        new Patch(security: "is_granted('ROLE_SUPER_ADMIN')"),
-        new Delete(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Patch(
+            uriTemplate: '/activity-types/{id}',
+            security: "is_granted('ROLE_SUPER_ADMIN')",
+        ),
+        new Delete(
+            uriTemplate: '/activity-types/{id}',
+            security: "is_granted('ROLE_SUPER_ADMIN')",
+        ),
     ],
     normalizationContext: ['groups' => ['activity_type:read']],
     denormalizationContext: ['groups' => ['activity_type:write']],
