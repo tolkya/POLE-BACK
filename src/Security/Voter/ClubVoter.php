@@ -2,45 +2,60 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Club;
+use App\Entity\User;
+use App\Repository\UserClubRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 final class ClubVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const ADMIN = 'CLUB_ADMIN';
+    public const VIEW = 'CLUB_VIEW';
+
+    public function __construct(
+        private readonly UserClubRepository $userClubRepository,
+    ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\Club;
+        return in_array($attribute, [self::ADMIN, self::VIEW])
+            && $subject instanceof Club;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case self::EDIT:
-                // logic to determine if the user can EDIT
-                // return true or false
-                break;
+        /** @var Club $club */
+        $club = $subject;
 
-            case self::VIEW:
-                // logic to determine if the user can VIEW
-                // return true or false
-                break;
-        }
+        return match ($attribute) {
+            self::ADMIN => $this->isClubAdmin($user, $club),
+            self::VIEW => $this->isClubMember($user, $club),
+            default => false,
+        };
+    }
 
-        return false;
+    private function isClubAdmin(User $user, Club $club): bool
+    {
+        $userClub = $this->userClubRepository->findOneBy([
+            'member' => $user,
+            'club' => $club,
+        ]);
+
+        return $userClub !== null && in_array('ADMIN', $userClub->getRoles());
+    }
+
+    private function isClubMember(User $user, Club $club): bool
+    {
+        return $this->userClubRepository->findOneBy([
+            'member' => $user,
+            'club' => $club,
+        ]) !== null;
     }
 }
