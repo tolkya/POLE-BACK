@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserClubRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserClubRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_USER_CLUB', columns: ['member_id', 'club_id'])]
@@ -20,15 +21,18 @@ class UserClub
 
     #[ORM\ManyToOne(inversedBy: 'userClubs')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user_club:read'])]
     private ?Club $club = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['user_club:read'])]
     private array $roles = [];
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['user_club:read'])]
     private ?\DateTimeImmutable $validatedAt = null;
 
     public function __construct()
