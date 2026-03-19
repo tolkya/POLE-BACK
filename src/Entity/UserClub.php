@@ -6,6 +6,7 @@ use App\Repository\UserClubRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserClubRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_USER_CLUB', columns: ['member_id', 'club_id'])]
 class UserClub
 {
     #[ORM\Id]
