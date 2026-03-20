@@ -10,6 +10,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\State\CreateClubProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
@@ -25,6 +27,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Patch(
             uriTemplate: '/clubs/{id}',
             security: "is_granted('ROLE_SUPER_ADMIN') or is_granted('CLUB_ADMIN', object)",
+            denormalizationContext: ['groups' => ['club:write']],
+        ),
+        new Post(
+            uriTemplate: '/clubs',
+            security: "is_granted('ROLE_USER')",
+            processor: CreateClubProcessor::class,
             denormalizationContext: ['groups' => ['club:write']],
         ),
     ],
