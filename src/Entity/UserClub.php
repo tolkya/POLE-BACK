@@ -5,7 +5,20 @@ namespace App\Entity;
 use App\Repository\UserClubRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\State\ClubMembersProvider;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/clubs/{clubId}/members',
+            uriVariables: ['clubId'],
+            provider: ClubMembersProvider::class,
+            normalizationContext: ['groups' => ['club_member:read']],
+        ),
+    ],
+)]
 #[ORM\Entity(repositoryClass: UserClubRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_USER_CLUB', columns: ['member_id', 'club_id'])]
 class UserClub
@@ -17,6 +30,7 @@ class UserClub
 
     #[ORM\ManyToOne(inversedBy: 'userClubs')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user_club:read', 'club_member:read'])]
     private ?User $member = null;
 
     #[ORM\ManyToOne(inversedBy: 'userClubs')]
@@ -25,14 +39,15 @@ class UserClub
     private ?Club $club = null;
 
     #[ORM\Column]
+    #[Groups(['club_member:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['user_club:read'])]
+    #[Groups(['user_club:read', 'club_member:read'])]
     private array $roles = [];
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['user_club:read'])]
+    #[Groups(['user_club:read', 'club_member:read'])]
     private ?\DateTimeImmutable $validatedAt = null;
 
     public function __construct()

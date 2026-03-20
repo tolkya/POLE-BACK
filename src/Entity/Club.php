@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
@@ -19,7 +20,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         new Get(
             uriTemplate: '/clubs/{id}',
-            security: "is_granted('ROLE_SUPER_ADMIN')",
+            security: "is_granted('ROLE_SUPER_ADMIN') or is_granted('CLUB_ADMIN', object)",
+        ),
+        new Patch(
+            uriTemplate: '/clubs/{id}',
+            security: "is_granted('ROLE_SUPER_ADMIN') or is_granted('CLUB_ADMIN', object)",
+            denormalizationContext: ['groups' => ['club:write']],
         ),
     ],
     normalizationContext: ['groups' => ['club:read']],
@@ -35,15 +41,15 @@ class Club
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['club:read', 'user_club:read'])]
+    #[Groups(['club:read', 'user_club:read', 'club:write'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups(['club:read'])]
+    #[Groups(['club:read', 'club:write'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 180, nullable: true)]
-    #[Groups(['club:read'])]
+    #[Groups(['club:read', 'club:write'])]
     private ?string $email = null;
 
     #[ORM\Column]

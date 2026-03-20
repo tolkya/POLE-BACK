@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Entity\Club;
 use App\Entity\UserClub;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -26,6 +27,19 @@ class UserClubRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('uc')
             ->where('uc.member = :user')
             ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Retourne tous les UserClub d'un club.
+     * @return UserClub[]
+     */
+    public function findByClub(Club $club): array
+    {
+        return $this->createQueryBuilder('uc')
+            ->where('uc.club = :club')
+            ->setParameter('club', $club)
             ->getQuery()
             ->getResult();
     }
