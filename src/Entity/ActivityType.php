@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ActivityTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -13,6 +14,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\State\ActivityTypeProcessor;
+use App\Enum\ActivityTypeStatus;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -71,6 +73,18 @@ class ActivityType
     #[ORM\Column]
     #[Groups(['activity_type:read'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['activity_type:read', 'activity_type:write'])]
+    private ?string $description = null;
+
+    #[ORM\Column(enumType: ActivityTypeStatus::class)]
+    #[Groups(['activity_type:read'])]
+    private ActivityTypeStatus $status = ActivityTypeStatus::ACTIVE;
+
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[Groups(['activity_type:read', 'activity_type:write'])]
+    private ?self $parent = null;
 
     public function __construct()
     {
@@ -145,6 +159,42 @@ class ActivityType
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): static
+    {
+        $this->parent = $parent;
 
         return $this;
     }
