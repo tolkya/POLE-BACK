@@ -46,7 +46,10 @@ final class UserRegistrationProcessor implements ProcessorInterface
         $userClub = new UserClub();
         $userClub->setMember($user);
         $userClub->setClub($club);
-        $userClub->setRoles(['USER']);
+        $userClub->setRoles(['MEMBER']);
+        if ($club->getJoinPolicy() === \App\Enum\JoinPolicy::AUTO_ACCEPT->value) {
+            $userClub->setValidatedAt(new \DateTimeImmutable());
+        }
 
         $this->em->persist($user);
         $this->em->persist($userClub);

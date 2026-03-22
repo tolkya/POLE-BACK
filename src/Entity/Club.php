@@ -13,6 +13,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\State\CreateClubProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
+use App\Enum\JoinPolicy;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -75,6 +77,11 @@ class Club
      */
     #[ORM\OneToMany(targetEntity: UserClub::class, mappedBy: 'club')]
     private Collection $userClubs;
+
+    #[ORM\Column(length: 20)]
+    #[Groups(['club:read', 'club:write'])]
+    #[Assert\Choice(callback: [JoinPolicy::class, 'values'], message: 'La politique d\'adhésion "{{ value }}" est invalide.')]
+    private string $joinPolicy = JoinPolicy::AUTO_ACCEPT->value;
 
     public function __construct()
     {
@@ -198,6 +205,18 @@ class Club
                 $userClub->setClub(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getJoinPolicy(): ?string
+    {
+        return $this->joinPolicy;
+    }
+
+    public function setJoinPolicy(string $joinPolicy): static
+    {
+        $this->joinPolicy = $joinPolicy;
 
         return $this;
     }

@@ -65,6 +65,7 @@ final class ClubAdminRegistrationProcessor implements ProcessorInterface
         $userClub->setMember($user);
         $userClub->setClub($club);
         $userClub->setRoles(['ADMIN']);
+        $userClub->setValidatedAt(new \DateTimeImmutable());
 
         // 4. Persister en BDD (ordre important : user et club avant userClub)
         $this->em->persist($user);
