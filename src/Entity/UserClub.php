@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use App\State\ClubMembersProvider;
+use App\State\UserClubPatch;
+use App\State\UserClubDelete;
 use App\Enum\ClubRole;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,6 +22,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriVariables: ['clubId'],
             provider: ClubMembersProvider::class,
             normalizationContext: ['groups' => ['club_member:read']],
+        ),
+        new Patch(
+            uriTemplate: '/user-clubs/{id}',
+            normalizationContext: ['groups' => ['user_club:read']],
+            denormalizationContext: ['groups' => ['user_club:write']],
+            processor: UserClubPatch::class,
+        ),
+        new Delete(
+            uriTemplate: '/user-clubs/{id}',
+            processor: UserClubDelete::class,
         ),
     ],
 )]
@@ -45,14 +59,14 @@ class UserClub
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['user_club:read', 'club_member:read'])]
+    #[Groups(['user_club:read', 'club_member:read', 'user_club:write'])]
     #[Assert\All([
-        new Assert\Choice(choices: ClubRole::values(), message: 'Le rôle "{{ value }}" est invalide.'),
+        new Assert\Choice(callback: [ClubRole::class, 'values'], message: 'Le rôle "{{ value }}" est invalide.'),
     ])]
     private array $roles = [];
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['user_club:read', 'club_member:read'])]
+    #[Groups(['user_club:read', 'club_member:read', 'user_club:write'])]
     private ?\DateTimeImmutable $validatedAt = null;
 
     public function __construct()
