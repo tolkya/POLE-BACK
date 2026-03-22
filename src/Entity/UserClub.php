@@ -8,6 +8,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\State\ClubMembersProvider;
+use App\Enum\ClubRole;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -44,6 +46,9 @@ class UserClub
 
     #[ORM\Column]
     #[Groups(['user_club:read', 'club_member:read'])]
+    #[Assert\All([
+        new Assert\Choice(choices: ClubRole::values(), message: 'Le rôle "{{ value }}" est invalide.'),
+    ])]
     private array $roles = [];
 
     #[ORM\Column(nullable: true)]
