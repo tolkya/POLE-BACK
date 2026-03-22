@@ -14,12 +14,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new GetCollection(
             uriTemplate: '/notification-receipts',
-            security: "is_granted('ROLE_SUPER_ADMIN')",
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             provider: NotificationReceiptProvider::class,
         ),
         new Patch(
             uriTemplate: '/notification-receipts/{id}',
-            security: "is_granted('ROLE_SUPER_ADMIN') and object.getRecipient() == user",
+            security: "is_granted('IS_AUTHENTICATED_FULLY') and object.getRecipient() == user",
         ),
     ],
     normalizationContext: ['groups' => ['receipt:read']],

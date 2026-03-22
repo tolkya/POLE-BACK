@@ -46,4 +46,23 @@ final class NotificationService
 
         $this->em->flush();
     }
+    
+    public function notifyMemberValidated(Club $club, User $member): void
+    {
+        $event = new NotificationEvent();
+        $event->setNotifType('MEMBER_VALIDATED');
+        $event->setSubjectType('Club');
+        $event->setSubjectId($club->getId());
+        $event->setTriggeredBy($member);
+        $event->setContext([
+            'clubName' => $club->getName(),
+            'clubCode' => $club->getClubCode(),
+        ]);
+        $this->em->persist($event);
+
+        $receipt = new NotificationReceipt();
+        $receipt->setEvent($event);
+        $receipt->setRecipient($member);
+        $this->em->persist($receipt);
+    }
 }

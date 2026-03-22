@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Entity\UserClub;
 use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -21,6 +22,7 @@ final class UserRegistrationProcessor implements ProcessorInterface
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly UserRepository $userRepository,
         private readonly ClubRepository $clubRepository,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserRegistration
@@ -47,12 +49,13 @@ final class UserRegistrationProcessor implements ProcessorInterface
         $userClub->setMember($user);
         $userClub->setClub($club);
         $userClub->setRoles(['MEMBER']);
-        if ($club->getJoinPolicy() === \App\Enum\JoinPolicy::AUTO_ACCEPT->value) {
-            $userClub->setValidatedAt(new \DateTimeImmutable());
-        }
+        $userClub->setValidatedAt(new \DateTimeImmutable());
 
         $this->em->persist($user);
         $this->em->persist($userClub);
+        $this->em->flush();
+
+        $this->notificationService->notifyMemberValidated($club, $user);
         $this->em->flush();
 
         $data->userId = $user->getId();
