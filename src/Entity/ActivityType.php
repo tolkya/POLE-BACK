@@ -17,7 +17,10 @@ use App\State\ActivityTypeProcessor;
 use App\Enum\ActivityTypeStatus;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'ipartial'])]
 #[ApiResource(
     operations: [
         new GetCollection(
