@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/activity-types',
-            security: "is_granted('ROLE_SUPER_ADMIN')",
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             processor: ActivityTypeProcessor::class,
         ),
         new Patch(
@@ -175,12 +175,12 @@ class ActivityType
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ActivityTypeStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(ActivityTypeStatus $status): static
     {
         $this->status = $status;
 

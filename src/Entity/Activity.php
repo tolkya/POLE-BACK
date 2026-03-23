@@ -18,6 +18,8 @@ use App\State\ActivityProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+
+
 #[ApiResource(
     operations: [
         new GetCollection(
@@ -31,19 +33,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/clubs/{clubId}/activities',
             uriVariables: ['clubId'],
             processor: ActivityProcessor::class,
+            read: false,
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             normalizationContext: ['groups' => ['activity:read']],
             denormalizationContext: ['groups' => ['activity:write']],
         ),
         new Patch(
             uriTemplate: '/activities/{id}',
-            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            security: "is_granted('ACTIVITY_EDIT', object)",
             normalizationContext: ['groups' => ['activity:read']],
             denormalizationContext: ['groups' => ['activity:write']],
         ),
         new Delete(
             uriTemplate: '/activities/{id}',
-            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            security: "is_granted('ACTIVITY_DELETE', object)",
         ),
     ],
 )]
@@ -191,12 +194,12 @@ class Activity
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ActivityStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(ActivityStatus $status): static
     {
         $this->status = $status;
 
