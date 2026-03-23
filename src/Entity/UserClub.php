@@ -42,6 +42,7 @@ class UserClub
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user_club:read', 'club_member:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userClubs')]
