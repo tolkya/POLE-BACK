@@ -33,7 +33,7 @@ use ApiPlatform\Metadata\ApiFilter;
         ),
         new Post(
             uriTemplate: '/activity-types',
-            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            security: "is_granted('ROLE_SUPER_ADMIN')",
             processor: ActivityTypeProcessor::class,
         ),
         new Patch(
@@ -84,10 +84,6 @@ class ActivityType
     #[ORM\Column(enumType: ActivityTypeStatus::class)]
     #[Groups(['activity_type:read'])]
     private ActivityTypeStatus $status = ActivityTypeStatus::ACTIVE;
-
-    #[ORM\ManyToOne(targetEntity: self::class)]
-    #[Groups(['activity_type:read', 'activity_type:write'])]
-    private ?self $parent = null;
 
     public function __construct()
     {
@@ -190,15 +186,4 @@ class ActivityType
         return $this;
     }
 
-    public function getParent(): ?self
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?self $parent): static
-    {
-        $this->parent = $parent;
-
-        return $this;
-    }
 }
