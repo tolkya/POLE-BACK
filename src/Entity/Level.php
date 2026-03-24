@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\LevelValue;
 use App\Repository\LevelRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,9 +31,16 @@ class Level
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var Collection<int, Skill>
+     */
+    #[ORM\OneToMany(targetEntity: Skill::class, mappedBy: 'level', orphanRemoval: true)]
+    private Collection $skills;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->skills = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -83,6 +92,36 @@ class Level
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Skill>
+     */
+    public function getSkills(): Collection
+    {
+        return $this->skills;
+    }
+
+    public function addSkill(Skill $skill): static
+    {
+        if (!$this->skills->contains($skill)) {
+            $this->skills->add($skill);
+            $skill->setLevel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSkill(Skill $skill): static
+    {
+        if ($this->skills->removeElement($skill)) {
+            // set the owning side to null (unless already changed)
+            if ($skill->getLevel() === $this) {
+                $skill->setLevel(null);
+            }
+        }
 
         return $this;
     }
