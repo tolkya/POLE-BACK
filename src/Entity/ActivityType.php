@@ -55,13 +55,13 @@ class ActivityType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['activity_type:read'])]
+    #[Groups(['activity_type:read', 'activity:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    #[Groups(['activity_type:read', 'activity_type:write'])]
+    #[Groups(['activity_type:read', 'activity_type:write', 'activity:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne]
