@@ -93,10 +93,17 @@ class Activity
     #[Groups(['activity:read'])]
     private ActivityStatus $status = ActivityStatus::ACTIVE;
 
+    /**
+     * @var Collection<int, Level>
+     */
+    #[ORM\OneToMany(targetEntity: Level::class, mappedBy: 'activity', orphanRemoval: true)]
+    private Collection $levels;
+
     public function __construct()
     {
         $this->userActivities = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
+        $this->levels = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -202,6 +209,36 @@ class Activity
     public function setStatus(ActivityStatus $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Level>
+     */
+    public function getLevels(): Collection
+    {
+        return $this->levels;
+    }
+
+    public function addLevel(Level $level): static
+    {
+        if (!$this->levels->contains($level)) {
+            $this->levels->add($level);
+            $level->setActivity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLevel(Level $level): static
+    {
+        if ($this->levels->removeElement($level)) {
+            // set the owning side to null (unless already changed)
+            if ($level->getActivity() === $this) {
+                $level->setActivity(null);
+            }
+        }
 
         return $this;
     }
