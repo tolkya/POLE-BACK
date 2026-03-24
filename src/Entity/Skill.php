@@ -5,7 +5,46 @@ namespace App\Entity;
 use App\Repository\SkillRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\State\SkillProcessor;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\State\SkillsProvider;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/levels/{levelId}/skills',
+            uriVariables: ['levelId'],
+            provider: SkillsProvider::class,
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            normalizationContext: ['groups' => ['skill:read']],
+        ),
+        new Post(
+            uriTemplate: '/levels/{levelId}/skills',
+            uriVariables: ['levelId'],
+            processor: SkillProcessor::class,
+            read: false,
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            normalizationContext: ['groups' => ['skill:read']],
+            denormalizationContext: ['groups' => ['skill:write']],
+        ),
+        new Patch(
+            uriTemplate: '/skills/{id}',
+            security: "is_granted('SKILL_MANAGE', object.getLevel())",
+            normalizationContext: ['groups' => ['skill:read']],
+            denormalizationContext: ['groups' => ['skill:write']],
+        ),
+        new Delete(
+            uriTemplate: '/skills/{id}',
+            security: "is_granted('SKILL_MANAGE', object.getLevel())",
+        ),
+    ],
+)]
 #[ORM\Entity(repositoryClass: SkillRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_SKILL_LEVEL_NAME', columns: ['level_id', 'name'])]
 class Skill
@@ -13,6 +52,7 @@ class Skill
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['skill:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'skills')]
@@ -20,12 +60,17 @@ class Skill
     private ?Level $level = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Groups(['skill:read', 'skill:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['skill:read', 'skill:write'])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Groups(['skill:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()

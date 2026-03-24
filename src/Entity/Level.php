@@ -8,7 +8,46 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\State\LevelProcessor;
+use App\State\LevelsProvider;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/activities/{activityId}/levels',
+            uriVariables: ['activityId'],
+            provider: LevelsProvider::class,
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            normalizationContext: ['groups' => ['level:read']],
+        ),
+        new Post(
+            uriTemplate: '/activities/{activityId}/levels',
+            uriVariables: ['activityId'],
+            processor: LevelProcessor::class,
+            read: false,
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            normalizationContext: ['groups' => ['level:read']],
+            denormalizationContext: ['groups' => ['level:write']],
+        ),
+        new Patch(
+            uriTemplate: '/levels/{id}',
+            security: "is_granted('LEVEL_EDIT', object)",
+            normalizationContext: ['groups' => ['level:read']],
+            denormalizationContext: ['groups' => ['level:write']],
+        ),
+        new Delete(
+            uriTemplate: '/levels/{id}',
+            security: "is_granted('LEVEL_DELETE', object)",
+        ),
+    ],
+)]
 #[ORM\Entity(repositoryClass: LevelRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_LEVEL_ACTIVITY_VALUE', columns: ['activity_id', 'value'])]
 class Level
@@ -16,6 +55,7 @@ class Level
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['level:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'levels')]
@@ -23,12 +63,16 @@ class Level
     private ?Activity $activity = null;
 
     #[ORM\Column(length: 20, enumType: LevelValue::class)]
+    #[Assert\NotNull]
+    #[Groups(['level:read', 'level:write'])]
     private ?LevelValue $value = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['level:read', 'level:write'])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Groups(['level:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
