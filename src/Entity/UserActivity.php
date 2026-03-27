@@ -12,6 +12,7 @@ use App\Enum\UserActivityStatus;
 use App\Repository\UserActivityRepository;
 use App\State\ActivityJoinProcessor;
 use App\State\ActivityMembersProvider;
+use App\State\UserActivityStatusProcessor;
 use App\State\UserActivityProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -50,6 +51,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user_activity:read']],
             denormalizationContext: ['groups' => ['user_activity:write']],
             security: 'is_granted("ACTIVITY_MEMBER_MANAGE", object)',
+            processor: UserActivityStatusProcessor::class,
         ),
         // Désinscrire
         new Delete(
