@@ -5,6 +5,7 @@ namespace App\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Skill;
+use App\Entity\User;
 use App\Repository\LevelRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -26,13 +27,17 @@ final class SkillProcessor implements ProcessorInterface
             throw new NotFoundHttpException('Niveau introuvable.');
         }
 
-        if (!$this->security->isGranted('SKILL_MANAGE', $level)) {
-            throw new AccessDeniedHttpException('Vous n\'avez pas les droits pour gérer les compétences de ce niveau.');
+        if (!$this->security->isGranted('SKILL_CREATE', $level)) {
+            throw new AccessDeniedHttpException('Vous n\'avez pas les droits pour créer une compétence dans ce niveau.');
         }
+
+        /** @var User $currentUser */
+        $currentUser = $this->security->getUser();
 
         $skill = new Skill();
         $skill->setLevel($level);
         $skill->setName($data->getName());
+        $skill->setCreatedBy($currentUser);
         if ($data->getDescription() !== null) {
             $skill->setDescription($data->getDescription());
         }

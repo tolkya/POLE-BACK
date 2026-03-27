@@ -35,13 +35,13 @@ use App\State\SkillsProvider;
         ),
         new Patch(
             uriTemplate: '/skills/{id}',
-            security: "is_granted('SKILL_MANAGE', object.getLevel())",
+            security: "is_granted('SKILL_EDIT', object)",
             normalizationContext: ['groups' => ['skill:read']],
             denormalizationContext: ['groups' => ['skill:write']],
         ),
         new Delete(
             uriTemplate: '/skills/{id}',
-            security: "is_granted('SKILL_MANAGE', object.getLevel())",
+            security: "is_granted('SKILL_DELETE', object)",
         ),
     ],
 )]
@@ -72,6 +72,11 @@ class Skill
     #[ORM\Column]
     #[Groups(['skill:read'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['skill:read'])]
+    private ?User $createdBy = null;
 
     public function __construct()
     {
@@ -127,6 +132,18 @@ class Skill
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }
