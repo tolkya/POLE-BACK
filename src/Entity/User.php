@@ -21,7 +21,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['club_member:read'])]
+    #[Groups(['club_member:read', 'user_activity:read'])]
     private ?string $email = null;
 
     /**
@@ -58,11 +58,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['receipt:read', 'club_member:read'])]
+    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['receipt:read', 'club_member:read'])]
+    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read'])]
     private ?string $lastName = null;
 
     public function __construct()

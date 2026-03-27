@@ -82,7 +82,7 @@ class Activity
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    #[Groups(['activity:read', 'activity:write'])]
+    #[Groups(['activity:read', 'activity:write', 'user_activity:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

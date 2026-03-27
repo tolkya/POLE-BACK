@@ -25,6 +25,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriVariables: ['activityId'],
             read: false,
             normalizationContext: ['groups' => ['user_activity:read']],
+            denormalizationContext: ['groups' => ['user_activity:write']],
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             processor: UserActivityProcessor::class,
         ),
@@ -34,6 +35,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriVariables: ['activityId'],
             read: false,
             normalizationContext: ['groups' => ['user_activity:read']],
+            denormalizationContext: ['groups' => ['user_activity:write']],
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             processor: ActivityJoinProcessor::class,
         ),
@@ -77,6 +79,7 @@ class UserActivity
 
     #[ORM\ManyToOne(inversedBy: 'userActivities')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user_activity:read'])]
     private ?Activity $activity = null;
 
     #[ORM\Column(length: 20, enumType: ActivityRole::class)]
