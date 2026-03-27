@@ -32,7 +32,8 @@
         "symfony/serializer": "8.0.*",
         "symfony/twig-bundle": "8.0.*",
         "symfony/validator": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "symfony/yaml": "8.0.*",
+        "vich/uploader-bundle": "^2.9"
     },
     "config": {
         "allow-plugins": {

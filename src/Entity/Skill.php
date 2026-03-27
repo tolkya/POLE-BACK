@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SkillRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -78,9 +80,17 @@ class Skill
     #[Groups(['skill:read'])]
     private ?User $createdBy = null;
 
+    /**
+     * @var Collection<int, SkillMediaTuto>
+     */
+    #[ORM\OneToMany(targetEntity: SkillMediaTuto::class, mappedBy: 'skill', orphanRemoval: true)]
+    #[Groups(['skill:read'])]
+    private Collection $skillMediaTutos;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->skillMediaTutos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -144,6 +154,36 @@ class Skill
     public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SkillMediaTuto>
+     */
+    public function getSkillMediaTutos(): Collection
+    {
+        return $this->skillMediaTutos;
+    }
+
+    public function addSkillMediaTuto(SkillMediaTuto $skillMediaTuto): static
+    {
+        if (!$this->skillMediaTutos->contains($skillMediaTuto)) {
+            $this->skillMediaTutos->add($skillMediaTuto);
+            $skillMediaTuto->setSkill($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSkillMediaTuto(SkillMediaTuto $skillMediaTuto): static
+    {
+        if ($this->skillMediaTutos->removeElement($skillMediaTuto)) {
+            // set the owning side to null (unless already changed)
+            if ($skillMediaTuto->getSkill() === $this) {
+                $skillMediaTuto->setSkill(null);
+            }
+        }
 
         return $this;
     }
