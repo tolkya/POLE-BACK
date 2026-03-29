@@ -39,15 +39,17 @@ class UserRegistration
     #[Groups(['user_reg:write'])]
     #[Assert\NotBlank]
     #[Assert\Length(min: 8)]
+    #[Assert\Regex(pattern: '/[A-Z]/', message: 'Le mot de passe doit contenir au moins une majuscule.')]
+    #[Assert\Regex(pattern: '/\d/', message: 'Le mot de passe doit contenir au moins un chiffre.')]
+    #[Assert\Regex(pattern: '/[!@#$%^&*()_+\-=\[\]{};\':\"\\|,.<>\/?`~]/', message: 'Le mot de passe doit contenir au moins un symbole.')]
     public ?string $plainPassword = null;
 
     #[Groups(['user_reg:write'])]
-    #[Assert\NotBlank]
     public ?string $clubCode = null;
 
     #[Groups(['user_reg:read'])]
     public ?int $userId = null;
 
     #[Groups(['user_reg:read'])]
-    public string $message = 'Votre compte a été créé. Vous êtes bien inscrit au club.';
+    public string $message = 'Votre compte a été créé.';
 }

@@ -48,6 +48,9 @@ class ClubAdminRegistration
     #[Groups(['club_admin_reg:write'])]
     #[Assert\NotBlank]
     #[Assert\Length(min: 8)]
+    #[Assert\Regex(pattern: '/[A-Z]/', message: 'Le mot de passe doit contenir au moins une majuscule.')]
+    #[Assert\Regex(pattern: '/\d/', message: 'Le mot de passe doit contenir au moins un chiffre.')]
+    #[Assert\Regex(pattern: '/[!@#$%^&*()_+\-=\[\]{};\':\"\\|,.<>\/?`~]/', message: 'Le mot de passe doit contenir au moins un symbole.')]
     public ?string $plainPassword = null;
 
     #[Groups(['club_admin_reg:write'])]

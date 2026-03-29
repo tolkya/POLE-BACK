@@ -11,6 +11,7 @@ use App\Entity\UserClub;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -36,9 +37,9 @@ final class ClubAdminRegistrationProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ClubAdminRegistration
     {
-        // Vérifier que l'email n'est pas déjà utilisé — renvoie une 422 propre
+        // Vérifier que l'email n'est pas déjà utilisé — renvoie un 409 Conflict
         if ($this->userRepository->findOneBy(['email' => $data->email]) !== null) {
-            throw new UnprocessableEntityHttpException('Cet email est déjà utilisé.');
+            throw new ConflictHttpException('Cet email est déjà utilisé.');
         }
 
         // 1. Créer l'utilisateur
