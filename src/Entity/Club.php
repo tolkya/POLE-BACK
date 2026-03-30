@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ClubRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -15,6 +16,8 @@ use App\State\CreateClubProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Enum\JoinPolicy;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ApiResource(
     operations: [
@@ -41,6 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['club:read']],
 )]
 
+#[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
 {
@@ -83,6 +87,35 @@ class Club
     #[Assert\Choice(callback: [JoinPolicy::class, 'values'], message: 'La politique d\'adhésion "{{ value }}" est invalide.')]
     private string $joinPolicy = JoinPolicy::AUTO_ACCEPT->value;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['club:read', 'club:write'])]
+    private ?string $description = null;
+
+    #[ORM\Column(length: 7, nullable: true)]
+    #[Groups(['club:read', 'club:write'])]
+    private ?string $themeColor = null;
+
+    #[Vich\UploadableField(mapping: 'club_logo', fileNameProperty: 'logoFilename')]
+    private ?File $logoFile = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $logoFilename = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['club:read', 'club:write'])]
+    private ?string $street = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['club:read', 'club:write'])]
+    private ?string $postalCode = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['club:read', 'club:write'])]
+    private ?string $city = null;
+
     public function __construct()
     {
         $this->activities = new ArrayCollection();
@@ -94,6 +127,12 @@ class Club
     public function getClubCode(): ?string
     {
         return $this->id !== null ? 'cde_' . $this->id : null;
+    }
+
+    #[Groups(['club:read', 'user_club:read'])]
+    public function getLogoUrl(): ?string
+    {
+        return $this->logoFilename ? '/media/clubs/logos/' . $this->logoFilename : null;
     }
 
     public function getId(): ?int
@@ -217,6 +256,102 @@ class Club
     public function setJoinPolicy(string $joinPolicy): static
     {
         $this->joinPolicy = $joinPolicy;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getThemeColor(): ?string
+    {
+        return $this->themeColor;
+    }
+
+    public function setThemeColor(?string $themeColor): static
+    {
+        $this->themeColor = $themeColor;
+
+        return $this;
+    }
+
+    public function getLogoFile(): ?File
+    {
+        return $this->logoFile;
+    }
+
+    public function setLogoFile(?File $file = null): void
+    {
+        $this->logoFile = $file;
+        if ($file !== null) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getLogoFilename(): ?string
+    {
+        return $this->logoFilename;
+    }
+
+    public function setLogoFilename(?string $logoFilename): static
+    {
+        $this->logoFilename = $logoFilename;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): static
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(?string $postalCode): static
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }
