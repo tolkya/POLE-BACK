@@ -27,7 +27,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         ),
         new Get(
             uriTemplate: '/clubs/{id}',
-            security: "is_granted('ROLE_SUPER_ADMIN') or is_granted('CLUB_ADMIN', object)",
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
         ),
         new Patch(
             uriTemplate: '/clubs/{id}',
