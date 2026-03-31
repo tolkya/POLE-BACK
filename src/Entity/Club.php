@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\State\ClubLogoProcessor;
 use App\State\CreateClubProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Enum\JoinPolicy;
@@ -39,6 +40,15 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             security: "is_granted('ROLE_USER')",
             processor: CreateClubProcessor::class,
             denormalizationContext: ['groups' => ['club:write']],
+        ),
+        new Post(
+            uriTemplate: '/clubs/{id}/logo',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: ClubLogoProcessor::class,
+            read: false,
+            deserialize: false,
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            normalizationContext: ['groups' => ['club:read']],
         ),
     ],
     normalizationContext: ['groups' => ['club:read']],
@@ -96,9 +106,15 @@ class Club
     private ?string $themeColor = null;
 
     #[Vich\UploadableField(mapping: 'club_logo', fileNameProperty: 'logoFilename')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'],
+        mimeTypesMessage: 'Format accepté : PNG, JPG, SVG, WebP (max 2 Mo).'
+    )]
     private ?File $logoFile = null;
 
     #[ORM\Column(length: 500, nullable: true)]
+    #[Groups(['club:read'])]
     private ?string $logoFilename = null;
 
     #[ORM\Column(nullable: true)]
