@@ -25,3 +25,11 @@ services:
     App\Serializer\SkillMediaTutoNormalizer:
         arguments:
             $normalizer: '@api_platform.serializer.normalizer.item'
+
+    App\State\ClubAdminRegistrationProcessor:
+        arguments:
+            $registerLimiter: '@limiter.register'
+
+    App\State\UserRegistrationProcessor:
+        arguments:
+            $registerLimiter: '@limiter.register'

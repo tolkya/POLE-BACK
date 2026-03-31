@@ -11,10 +11,13 @@ use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final class UserRegistrationProcessor implements ProcessorInterface
 {
@@ -24,10 +27,18 @@ final class UserRegistrationProcessor implements ProcessorInterface
         private readonly UserRepository $userRepository,
         private readonly ClubRepository $clubRepository,
         private readonly NotificationService $notificationService,
+        private readonly RateLimiterFactory $registerLimiter,
+        private readonly RequestStack $requestStack,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserRegistration
     {
+        $ip = $this->requestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
+        $limiter = $this->registerLimiter->create($ip);
+        if (!$limiter->consume(1)->isAccepted()) {
+            throw new TooManyRequestsHttpException(null, 'Trop de tentatives d\'inscription. Veuillez patienter.');
+        }
+
         if ($this->userRepository->findOneBy(['email' => $data->email]) !== null) {
             throw new ConflictHttpException('Cet email est déjà utilisé.');
         }

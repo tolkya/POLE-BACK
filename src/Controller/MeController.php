@@ -17,12 +17,6 @@ class MeController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        return $this->json([
-            'id'        => $user->getId(),
-            'email'     => $user->getEmail(),
-            'firstName' => $user->getFirstName(),
-            'lastName'  => $user->getLastName(),
-            'roles'     => $user->getRoles(),
-        ]);
+        return $this->json($user, 200, [], ['groups' => ['user:me']]);
     }
 }
