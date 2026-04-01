@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\State\ClubStatsProvider;
 use App\State\ClubLogoProcessor;
 use App\State\CreateClubProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -29,6 +30,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new Get(
             uriTemplate: '/clubs/{id}',
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
+        ),
+        new Get(
+            uriTemplate: '/clubs/{id}/stats',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            provider: ClubStatsProvider::class,
+            normalizationContext: ['groups' => ['club:stats']],
+            name: 'club_stats',
         ),
         new Patch(
             uriTemplate: '/clubs/{id}',
