@@ -26,8 +26,8 @@ final class ActivitiesProvider implements ProviderInterface
         }
 
         // Membre OU admin du club peut voir les activités
-        if (!$this->security->isGranted('CLUB_VIEW', $club)) {
-            throw new AccessDeniedHttpException('Vous n\'êtes pas membre de ce club.');
+        if (!$this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
+            throw new AccessDeniedHttpException('Vous devez être connecté pour voir les activités.');
         }
 
         return $this->activityRepository->findBy(['club' => $club]);
