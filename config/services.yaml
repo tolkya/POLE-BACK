@@ -33,3 +33,11 @@ services:
     App\State\UserRegistrationProcessor:
         arguments:
             $registerLimiter: '@limiter.register'
+        
+    App\Serializer\ActivityTypeMediaNormalizer:
+        arguments:
+            $normalizer: '@api_platform.serializer.normalizer.item'
+
+    App\Serializer\ActivityMediaNormalizer:
+        arguments:
+            $normalizer: '@api_platform.serializer.normalizer.item'
