@@ -56,7 +56,7 @@ class Activity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['activity:read'])]
+    #[Groups(['activity:read', 'user_activity:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'activities')]

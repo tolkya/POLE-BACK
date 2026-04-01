@@ -14,6 +14,7 @@ use App\State\ActivityJoinProcessor;
 use App\State\ActivityMembersProvider;
 use App\State\UserActivityStatusProcessor;
 use App\State\UserActivityProcessor;
+use App\State\MyActivitiesProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -46,6 +47,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user_activity:read']],
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             provider: ActivityMembersProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/me/activities',
+            normalizationContext: ['groups' => ['user_activity:read']],
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            provider: MyActivitiesProvider::class,
+            paginationEnabled: false,
         ),
         // Changer le status (APPROVED/REJECTED)
         new Patch(

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\UserActivity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @extends ServiceEntityRepository<UserActivity>
@@ -15,29 +16,24 @@ class UserActivityRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, UserActivity::class);
     }
+/**
+ * Retourne les UserActivity de l'utilisateur connecté, optionnellement filtrés par club.
+ * @return UserActivity[]
+ */
+    public function findByMemberAndClub(User $member, ?int $clubId = null): array
+    {
+        $qb = $this->createQueryBuilder('ua')
+            ->join('ua.activity', 'a')
+            ->addSelect('a')
+            ->where('ua.member = :member')
+            ->setParameter('member', $member);
 
-    //    /**
-    //     * @return UserActivity[] Returns an array of UserActivity objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+        if ($clubId !== null) {
+            $qb->join('a.club', 'c')
+            ->andWhere('c.id = :clubId')
+            ->setParameter('clubId', $clubId);
+        }
 
-    //    public function findOneBySomeField($value): ?UserActivity
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $qb->getQuery()->getResult();
+    }
 }
