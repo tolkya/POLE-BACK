@@ -73,12 +73,19 @@ class ActivityType
     #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'activityType')]
     private Collection $activities;
 
+    /**
+     * @var Collection<int, ActivityTypeMedia>
+     */
+    #[ORM\OneToMany(targetEntity: ActivityTypeMedia::class, mappedBy: 'activityType', orphanRemoval: true)]
+    #[Groups(['activity_type:read', 'activity:read'])]
+    private Collection $medias;
+
     #[ORM\Column]
     #[Groups(['activity_type:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['activity_type:read', 'activity_type:write'])]
+    #[Groups(['activity_type:read', 'activity_type:write', 'activity:read'])]
     private ?string $description = null;
 
     #[ORM\Column(enumType: ActivityTypeStatus::class)]
@@ -88,6 +95,7 @@ class ActivityType
     public function __construct()
     {
         $this->activities = new ArrayCollection();
+        $this->medias = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -183,6 +191,28 @@ class ActivityType
     {
         $this->status = $status;
 
+        return $this;
+    }
+
+    /** @return Collection<int, ActivityTypeMedia> */
+    public function getMedias(): Collection { return $this->medias; }
+
+    public function addMedia(ActivityTypeMedia $media): static
+    {
+        if (!$this->medias->contains($media)) {
+            $this->medias->add($media);
+            $media->setActivityType($this);
+        }
+        return $this;
+    }
+
+    public function removeMedia(ActivityTypeMedia $media): static
+    {
+        if ($this->medias->removeElement($media)) {
+            if ($media->getActivityType() === $this) {
+                $media->setActivityType(null);
+            }
+        }
         return $this;
     }
 

@@ -55,7 +55,7 @@ class Level
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['level:read'])]
+    #[Groups(['level:read', 'activity:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'levels')]
@@ -64,7 +64,7 @@ class Level
 
     #[ORM\Column(length: 20, enumType: LevelValue::class)]
     #[Assert\NotNull]
-    #[Groups(['level:read', 'level:write'])]
+    #[Groups(['level:read', 'level:write', 'activity:read'])]
     private ?LevelValue $value = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

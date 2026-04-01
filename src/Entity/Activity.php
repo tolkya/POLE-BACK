@@ -97,13 +97,22 @@ class Activity
      * @var Collection<int, Level>
      */
     #[ORM\OneToMany(targetEntity: Level::class, mappedBy: 'activity', orphanRemoval: true)]
+    #[Groups(['activity:read'])]
     private Collection $levels;
+
+    /**
+     * @var Collection<int, ActivityMedia>
+     */
+    #[ORM\OneToMany(targetEntity: ActivityMedia::class, mappedBy: 'activity', orphanRemoval: true)]
+    #[Groups(['activity:read'])]
+    private Collection $medias;
 
     public function __construct()
     {
         $this->userActivities = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->levels = new ArrayCollection();
+        $this->medias = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -240,6 +249,28 @@ class Activity
             }
         }
 
+        return $this;
+    }
+
+    /** @return Collection<int, ActivityMedia> */
+    public function getMedias(): Collection { return $this->medias; }
+
+    public function addMedia(ActivityMedia $media): static
+    {
+        if (!$this->medias->contains($media)) {
+            $this->medias->add($media);
+            $media->setActivity($this);
+        }
+        return $this;
+    }
+
+    public function removeMedia(ActivityMedia $media): static
+    {
+        if ($this->medias->removeElement($media)) {
+            if ($media->getActivity() === $this) {
+                $media->setActivity(null);
+            }
+        }
         return $this;
     }
 }
