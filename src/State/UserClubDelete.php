@@ -23,7 +23,10 @@ class UserClubDelete implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         /** @var UserClub $data */
-        if (!$this->security->isGranted(UserClubVoter::DELETE, $data)) {
+        $canDelete = $this->security->isGranted(UserClubVoter::DELETE, $data);
+        $canLeave  = $this->security->isGranted(UserClubVoter::SELF_LEAVE, $data);
+
+        if (!$canDelete && !$canLeave) {
             throw new AccessDeniedHttpException('Accès refusé.');
         }
 

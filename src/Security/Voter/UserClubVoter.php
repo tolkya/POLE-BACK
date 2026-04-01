@@ -13,6 +13,7 @@ final class UserClubVoter extends Voter
 {
     public const EDIT   = 'USER_CLUB_EDIT';
     public const DELETE = 'USER_CLUB_DELETE';
+    public const SELF_LEAVE = 'USER_CLUB_SELF_LEAVE';
 
     public function __construct(
         private readonly UserClubRepository $userClubRepository,
@@ -20,7 +21,7 @@ final class UserClubVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, [self::EDIT, self::DELETE])
+        return in_array($attribute, [self::EDIT, self::DELETE, self::SELF_LEAVE])
             && $subject instanceof UserClub;
     }
 
@@ -42,6 +43,7 @@ final class UserClubVoter extends Voter
 
         return match ($attribute) {
             self::EDIT, self::DELETE => $this->isClubAdmin($user, $userClub),
+            self::SELF_LEAVE => $userClub->getMember() === $user && !$this->isClubAdmin($user, $userClub),
             default => false,
         };
     }
