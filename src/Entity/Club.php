@@ -110,7 +110,7 @@ class Club
     private ?string $description = null;
 
     #[ORM\Column(length: 7, nullable: true)]
-    #[Groups(['club:read', 'club:write'])]
+    #[Groups(['club:read', 'club:write', 'user_club:read'])]
     private ?string $themeColor = null;
 
     #[Vich\UploadableField(mapping: 'club_logo', fileNameProperty: 'logoFilename')]
