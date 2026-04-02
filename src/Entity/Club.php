@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use App\State\ClubStatsProvider;
 use App\State\ClubLogoProcessor;
 use App\State\CreateClubProcessor;
+use App\State\ClubSearchProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Enum\JoinPolicy;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -26,6 +27,24 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new GetCollection(
             uriTemplate: '/clubs',
             security: "is_granted('ROLE_SUPER_ADMIN')",
+        ),
+        new GetCollection(
+            uriTemplate: '/clubs/search',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            normalizationContext: ['groups' => ['club:search']],
+            provider: ClubSearchProvider::class,
+            name: 'club_search',
+            openapi: new \ApiPlatform\OpenApi\Model\Operation(
+                parameters: [
+                    new \ApiPlatform\OpenApi\Model\Parameter(
+                        name: 'name',
+                        in: 'query',
+                        description: 'Recherche par nom (min. 2 caractères)',
+                        required: false,
+                        schema: ['type' => 'string'],
+                    ),
+                ]
+            ),
         ),
         new Get(
             uriTemplate: '/clubs/{id}',
@@ -69,11 +88,11 @@ class Club
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['club:read', 'user_club:read'])]
+    #[Groups(['club:read', 'user_club:read', 'club:search'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['club:read', 'user_club:read', 'club:write'])]
+    #[Groups(['club:read', 'user_club:read', 'club:write', 'club:search'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
@@ -137,7 +156,7 @@ class Club
     private ?string $postalCode = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    #[Groups(['club:read', 'club:write'])]
+    #[Groups(['club:read', 'club:write', 'club:search'])]
     private ?string $city = null;
 
     public function __construct()
@@ -153,7 +172,7 @@ class Club
         return $this->id !== null ? 'cde_' . $this->id : null;
     }
 
-    #[Groups(['club:read', 'user_club:read'])]
+    #[Groups(['club:read', 'user_club:read', 'club:search'])]
     public function getLogoUrl(): ?string
     {
         return $this->logoFilename ? '/media/clubs/logos/' . $this->logoFilename : null;

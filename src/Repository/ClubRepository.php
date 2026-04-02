@@ -27,4 +27,23 @@ class ClubRepository extends ServiceEntityRepository
         }
         return $this->find($id);
     }
+
+    /**
+     * @return Club[]
+     */
+    public function searchByName(string $name, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('LOWER(c.name) LIKE LOWER(:name)')
+            ->setParameter('name', '%' . $name . '%')
+            ->orderBy(
+                'CASE WHEN LOWER(c.name) LIKE LOWER(:startsWith) THEN 0 ELSE 1 END',
+                'ASC'
+            )
+            ->addOrderBy('c.name', 'ASC')
+            ->setParameter('startsWith', $name . '%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
