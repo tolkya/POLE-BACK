@@ -66,7 +66,7 @@ class Activity
 
     #[ORM\ManyToOne(inversedBy: 'activities')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['activity:read', 'activity:write'])]
+    #[Groups(['activity:read', 'activity:write', 'user_activity:read'])]
     private ?ActivityType $activityType = null;
 
     /**
