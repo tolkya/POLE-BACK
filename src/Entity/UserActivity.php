@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             processor: ActivityJoinProcessor::class,
         ),
-        // Liste des inscrits d'une activité
+        // Liste des inscrits d'une activité (Teacher de l'activité ou Admin du club)
         new GetCollection(
             uriTemplate: '/activities/{activityId}/members',
             uriVariables: ['activityId'],
