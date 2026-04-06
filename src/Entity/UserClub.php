@@ -20,17 +20,20 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             uriTemplate: '/clubs/{clubId}/members',
             uriVariables: ['clubId'],
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             provider: ClubMembersProvider::class,
             normalizationContext: ['groups' => ['club_member:read']],
         ),
         new Patch(
             uriTemplate: '/user-clubs/{id}',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             normalizationContext: ['groups' => ['user_club:read']],
             denormalizationContext: ['groups' => ['user_club:write']],
             processor: UserClubPatch::class,
         ),
         new Delete(
             uriTemplate: '/user-clubs/{id}',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             processor: UserClubDelete::class,
         ),
     ],

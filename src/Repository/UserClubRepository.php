@@ -32,15 +32,42 @@ class UserClubRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne tous les UserClub d'un club.
+     * Retourne tous les UserClub d'un club, avec filtres optionnels.
+     * @param array{role?: string, search?: string} $filters
      * @return UserClub[]
      */
-    public function findByClub(Club $club): array
+    public function findByClub(Club $club, array $filters = []): array
     {
-        return $this->createQueryBuilder('uc')
+        $qb = $this->createQueryBuilder('uc')
+            ->join('uc.member', 'u')
+            ->addSelect('u')
             ->where('uc.club = :club')
+            ->setParameter('club', $club);
+
+        if (!empty($filters['role'])) {
+            $qb->andWhere('uc.roles LIKE :role')
+               ->setParameter('role', '%"' . $filters['role'] . '"%');
+        }
+
+        if (!empty($filters['search'])) {
+            $qb->andWhere('LOWER(u.firstName) LIKE :search OR LOWER(u.lastName) LIKE :search OR LOWER(u.email) LIKE :search')
+               ->setParameter('search', '%' . strtolower($filters['search']) . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Compte les membres en attente de validation manuelle (validatedAt IS NULL).
+     */
+    public function countPendingMembers(Club $club): int
+    {
+        return (int) $this->createQueryBuilder('uc')
+            ->select('COUNT(uc.id)')
+            ->where('uc.club = :club')
+            ->andWhere('uc.validatedAt IS NULL')
             ->setParameter('club', $club)
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
     }
 }

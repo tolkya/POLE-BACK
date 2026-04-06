@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\ClubMembership;
 use App\Entity\UserClub;
+use App\Enum\JoinPolicy;
 use App\Repository\ClubRepository;
 use App\Repository\UserClubRepository;
 use App\Service\NotificationService;
@@ -46,20 +47,25 @@ final class ClubMembershipProcessor implements ProcessorInterface
         $userClub->setMember($user);
         $userClub->setClub($club);
         $userClub->setRoles(['MEMBER']);
-        $userClub->setValidatedAt(new \DateTimeImmutable());
-/*         $isAutoAccepted = $club->getJoinPolicy() === JoinPolicy::AUTO_ACCEPT->value;
+
+        // Respect de la politique d'inscription du club
+        $isAutoAccepted = $club->getJoinPolicy() === JoinPolicy::AUTO_ACCEPT->value;
         if ($isAutoAccepted) {
             $userClub->setValidatedAt(new \DateTimeImmutable());
-        } */
+        }
 
         $this->em->persist($userClub);
         $this->em->flush();
 
-        // Notifications
-        $this->notificationService->notifyMemberValidated($club, $user);
-        $this->em->flush();
+        // Notification uniquement si l'inscription est auto-validée
+        if ($isAutoAccepted) {
+            $this->notificationService->notifyMemberValidated($club, $user);
+            $this->em->flush();
+        }
 
-        $data->message = 'Vous avez bien rejoint le club ' . $club->getName() . '.';
+        $data->message = $isAutoAccepted
+            ? 'Vous avez bien rejoint le club ' . $club->getName() . '.'
+            : 'Votre demande d\'adhésion au club ' . $club->getName() . ' est en attente de validation.';
         $data->userClubId = $userClub->getId();
 
         return $data;

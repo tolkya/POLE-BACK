@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\NotificationReceipt;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -21,6 +22,20 @@ class NotificationReceiptRepository extends ServiceEntityRepository
         return (int) $this->createQueryBuilder('r')
             ->select('COUNT(r.id)')
             ->where('r.readAt IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Compte les notifications non lues pour un utilisateur spécifique.
+     */
+    public function countUnreadForUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.recipient = :user')
+            ->andWhere('r.readAt IS NULL')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getSingleScalarResult();
     }

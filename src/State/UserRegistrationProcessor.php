@@ -7,6 +7,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\UserRegistration;
 use App\Entity\User;
 use App\Entity\UserClub;
+use App\Enum\JoinPolicy;
 use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
@@ -64,12 +65,19 @@ final class UserRegistrationProcessor implements ProcessorInterface
             $userClub->setMember($user);
             $userClub->setClub($club);
             $userClub->setRoles(['MEMBER']);
-            $userClub->setValidatedAt(new \DateTimeImmutable());
+
+            // Respect de la politique d'inscription du club
+            $isAutoAccepted = $club->getJoinPolicy() === JoinPolicy::AUTO_ACCEPT->value;
+            if ($isAutoAccepted) {
+                $userClub->setValidatedAt(new \DateTimeImmutable());
+            }
 
             $this->em->persist($userClub);
             $this->em->flush();
 
-            $this->notificationService->notifyMemberValidated($club, $user);
+            if ($isAutoAccepted) {
+                $this->notificationService->notifyMemberValidated($club, $user);
+            }
         }
 
         $this->em->flush();

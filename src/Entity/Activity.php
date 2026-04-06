@@ -72,7 +72,7 @@ class Activity
     /**
      * @var Collection<int, UserActivity>
      */
-    #[ORM\OneToMany(targetEntity: UserActivity::class, mappedBy: 'activity')]
+    #[ORM\OneToMany(targetEntity: UserActivity::class, mappedBy: 'activity', orphanRemoval: true)]
     private Collection $userActivities;
 
     #[ORM\Column]

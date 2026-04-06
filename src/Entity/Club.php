@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\State\ClubStatsProvider;
+use App\State\ClubAdminStatsProvider;
 use App\State\ClubLogoProcessor;
 use App\State\CreateClubProcessor;
 use App\State\ClubSearchProvider;
@@ -56,6 +57,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             provider: ClubStatsProvider::class,
             normalizationContext: ['groups' => ['club:stats']],
             name: 'club_stats',
+        ),
+        new Get(
+            uriTemplate: '/clubs/{id}/admin-stats',
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            provider: ClubAdminStatsProvider::class,
+            normalizationContext: ['groups' => ['club:admin_stats']],
+            name: 'club_admin_stats',
         ),
         new Patch(
             uriTemplate: '/clubs/{id}',
