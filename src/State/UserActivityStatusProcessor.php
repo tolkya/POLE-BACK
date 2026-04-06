@@ -20,19 +20,21 @@ final class UserActivityStatusProcessor implements ProcessorInterface
     {
         /** @var UserActivity $data */
         $previousStatus = $context['previous_data']?->getStatus();
+        $newStatus      = $data->getStatus();
 
-        $this->em->flush();
-
-        // Notifier le membre uniquement si le status vient de passer à APPROVED
-        if (
-            $data->getStatus() === UserActivityStatus::APPROVED
-            && $previousStatus !== UserActivityStatus::APPROVED
-        ) {
+        if ($newStatus === UserActivityStatus::APPROVED && $previousStatus !== UserActivityStatus::APPROVED) {
             $this->notificationService->notifyActivityJoinApproved(
                 $data->getActivity(),
                 $data->getMember()
             );
+        } elseif ($newStatus === UserActivityStatus::REJECTED && $previousStatus !== UserActivityStatus::REJECTED) {
+            $this->notificationService->notifyActivityJoinRejected(
+                $data->getActivity(),
+                $data->getMember()
+            );
         }
+
+        $this->em->flush();
 
         return $data;
     }

@@ -73,10 +73,11 @@ final class UserRegistrationProcessor implements ProcessorInterface
             }
 
             $this->em->persist($userClub);
-            $this->em->flush();
 
             if ($isAutoAccepted) {
                 $this->notificationService->notifyMemberValidated($club, $user);
+            } else {
+                $this->notificationService->notifyMemberJoinRequest($club, $user);
             }
         }
 

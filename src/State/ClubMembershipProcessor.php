@@ -55,13 +55,14 @@ final class ClubMembershipProcessor implements ProcessorInterface
         }
 
         $this->em->persist($userClub);
-        $this->em->flush();
 
-        // Notification uniquement si l'inscription est auto-validée
         if ($isAutoAccepted) {
             $this->notificationService->notifyMemberValidated($club, $user);
-            $this->em->flush();
+        } else {
+            $this->notificationService->notifyMemberJoinRequest($club, $user);
         }
+
+        $this->em->flush();
 
         $data->message = $isAutoAccepted
             ? 'Vous avez bien rejoint le club ' . $club->getName() . '.'

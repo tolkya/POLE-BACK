@@ -70,4 +70,21 @@ class UserClubRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Retourne uniquement les UserClub dont le membre a le rôle ADMIN dans ce club.
+     * @return UserClub[]
+     */
+    public function findAdminsByClub(Club $club): array
+    {
+        return $this->createQueryBuilder('uc')
+            ->join('uc.member', 'u')
+            ->addSelect('u')
+            ->where('uc.club = :club')
+            ->andWhere('uc.roles LIKE :role')
+            ->setParameter('club', $club)
+            ->setParameter('role', '%"ADMIN"%')
+            ->getQuery()
+            ->getResult();
+    }
 }
