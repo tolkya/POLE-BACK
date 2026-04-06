@@ -20,24 +20,27 @@ class ClubMembersProvider implements ProviderInterface
         private readonly RequestStack $requestStack,
     ) {}
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): array
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $clubId = $uriVariables['clubId'] ?? null;
-        
+
         $club = $this->clubRepository->find($clubId);
         if (!$club) {
             throw new NotFoundHttpException('Club not found');
         }
 
-        // Vérifie que l'utilisateur est admin de ce club
         if (!$this->security->isGranted('CLUB_ADMIN', $club)) {
             throw new AccessDeniedHttpException('You are not admin of this club');
         }
 
-        // Lecture des filtres passés en query params (?search=jean&role=TEACHER)
         $request = $this->requestStack->getCurrentRequest();
-        $role    = $request?->query->get('role');
-        $search  = $request?->query->get('search');
-        return $this->userClubRepository->findByClub($club, array_filter(compact('role', 'search')));
+        $filters = array_filter([
+            'role'   => $request?->query->get('role'),
+            'search' => $request?->query->get('search'),
+            'page'   => (int) ($request?->query->get('page', 1)),
+            'limit'  => 20,
+        ]);
+
+        return $this->userClubRepository->findByClub($club, $filters);
     }
 }

@@ -19,7 +19,6 @@ class UserClubRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne tous les UserClub d'un utilisateur.
      * @return UserClub[]
      */
     public function findAllByUser(User $user): array
@@ -32,34 +31,67 @@ class UserClubRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne tous les UserClub d'un club, avec filtres optionnels.
-     * @param array{role?: string, search?: string} $filters
+     * @param array{role?: string, search?: string, page?: int, limit?: int} $filters
      * @return UserClub[]
      */
     public function findByClub(Club $club, array $filters = []): array
     {
-        $qb = $this->createQueryBuilder('uc')
-            ->join('uc.member', 'u')
-            ->addSelect('u')
-            ->where('uc.club = :club')
-            ->setParameter('club', $club);
+        $conn   = $this->getEntityManager()->getConnection();
+        $limit  = min((int) ($filters['limit'] ?? 20), 100);
+        $offset = (max((int) ($filters['page'] ?? 1), 1) - 1) * $limit;
+
+        $sql    = 'SELECT uc.id FROM user_club uc JOIN "user" u ON u.id = uc.member_id WHERE uc.club_id = :clubId';
+        $params = ['clubId' => $club->getId()];
 
         if (!empty($filters['role'])) {
-            $qb->andWhere('uc.roles LIKE :role')
-               ->setParameter('role', '%"' . $filters['role'] . '"%');
+            $sql .= ' AND CAST(uc.roles AS jsonb) @> CAST(:role AS jsonb)';
+            $params['role'] = '["' . $filters['role'] . '"]';
         }
 
         if (!empty($filters['search'])) {
-            $qb->andWhere('LOWER(u.firstName) LIKE :search OR LOWER(u.lastName) LIKE :search OR LOWER(u.email) LIKE :search')
-               ->setParameter('search', '%' . strtolower($filters['search']) . '%');
+            $sql .= ' AND (LOWER(u.first_name) LIKE :search OR LOWER(u.last_name) LIKE :search OR LOWER(u.email) LIKE :search)';
+            $params['search'] = '%' . strtolower($filters['search']) . '%';
         }
 
-        return $qb->getQuery()->getResult();
+        $sql .= ' ORDER BY u.last_name ASC LIMIT ' . $limit . ' OFFSET ' . $offset;
+
+        $rows = $conn->executeQuery($sql, $params)->fetchAllAssociative();
+        $ids  = array_column($rows, 'id');
+        if (empty($ids)) return [];
+
+        return $this->createQueryBuilder('uc')
+            ->join('uc.member', 'u')
+            ->addSelect('u')
+            ->where('uc.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('u.lastName', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
-     * Compte les membres en attente de validation manuelle (validatedAt IS NULL).
+     * Compte le total de membres d'un club selon les mêmes filtres (sans LIMIT).
+     * @param array{role?: string, search?: string} $filters
      */
+    public function countByClub(Club $club, array $filters = []): int
+    {
+        $conn   = $this->getEntityManager()->getConnection();
+        $sql    = 'SELECT COUNT(uc.id) FROM user_club uc JOIN "user" u ON u.id = uc.member_id WHERE uc.club_id = :clubId';
+        $params = ['clubId' => $club->getId()];
+
+        if (!empty($filters['role'])) {
+            $sql .= ' AND CAST(uc.roles AS jsonb) @> CAST(:role AS jsonb)';
+            $params['role'] = '["' . $filters['role'] . '"]';
+        }
+
+        if (!empty($filters['search'])) {
+            $sql .= ' AND (LOWER(u.first_name) LIKE :search OR LOWER(u.last_name) LIKE :search OR LOWER(u.email) LIKE :search)';
+            $params['search'] = '%' . strtolower($filters['search']) . '%';
+        }
+
+        return (int) $conn->executeQuery($sql, $params)->fetchOne();
+    }    
+
     public function countPendingMembers(Club $club): int
     {
         return (int) $this->createQueryBuilder('uc')
@@ -72,19 +104,21 @@ class UserClubRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne uniquement les UserClub dont le membre a le rôle ADMIN dans ce club.
      * @return UserClub[]
      */
     public function findAdminsByClub(Club $club): array
     {
-        return $this->createQueryBuilder('uc')
+        $results = $this->createQueryBuilder('uc')
             ->join('uc.member', 'u')
             ->addSelect('u')
             ->where('uc.club = :club')
-            ->andWhere('uc.roles LIKE :role')
             ->setParameter('club', $club)
-            ->setParameter('role', '%"ADMIN"%')
             ->getQuery()
             ->getResult();
+
+        return array_values(array_filter(
+            $results,
+            fn(UserClub $uc) => in_array('ADMIN', $uc->getRoles())
+        ));
     }
 }
