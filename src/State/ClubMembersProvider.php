@@ -4,6 +4,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use ApiPlatform\State\Pagination\ArrayPaginator;
 use App\Repository\ClubRepository;
 use App\Repository\UserClubRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -34,13 +35,19 @@ class ClubMembersProvider implements ProviderInterface
         }
 
         $request = $this->requestStack->getCurrentRequest();
+        $page    = max(1, (int) ($request?->query->get('page', 1)));
+        $limit   = 20;
+
         $filters = array_filter([
             'role'   => $request?->query->get('role'),
             'search' => $request?->query->get('search'),
-            'page'   => (int) ($request?->query->get('page', 1)),
-            'limit'  => 20,
+            'page'   => $page,
+            'limit'  => $limit,
         ]);
 
-        return $this->userClubRepository->findByClub($club, $filters);
+        $total   = $this->userClubRepository->countByClub($club, $filters);
+        $members = $this->userClubRepository->findByClub($club, $filters);
+
+        return new ArrayPaginator($members, ($page - 1) * $limit, $total);
     }
 }
