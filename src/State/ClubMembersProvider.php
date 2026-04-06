@@ -36,7 +36,7 @@ class ClubMembersProvider implements ProviderInterface
 
         $request = $this->requestStack->getCurrentRequest();
         $page    = max(1, (int) ($request?->query->get('page', 1)));
-        $limit   = 20;
+        $limit   = min(max(1, (int) ($request?->query->get('limit', 20))), 100);
 
         $filters = array_filter([
             'role'   => $request?->query->get('role'),
