@@ -103,6 +103,17 @@ class UserClubRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function isAdminOfAnyClub(User $user): bool
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $result = $conn->executeQuery(
+            'SELECT COUNT(id) FROM user_club WHERE member_id = :userId AND roles::jsonb @> :role::jsonb',
+            ['userId' => $user->getId(), 'role' => json_encode(['ADMIN'])]
+        )->fetchOne();
+
+        return (bool) $result;
+    }
+
     /**
      * @return UserClub[]
      */

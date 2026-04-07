@@ -33,7 +33,7 @@ use ApiPlatform\Metadata\ApiFilter;
         ),
         new Post(
             uriTemplate: '/activity-types',
-            security: "is_granted('ROLE_SUPER_ADMIN')",
+            security: "is_granted('ACTIVITY_TYPE_CREATE')",
             processor: ActivityTypeProcessor::class,
         ),
         new Patch(
