@@ -60,7 +60,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/user-activities/{id}',
             normalizationContext: ['groups' => ['user_activity:read']],
             denormalizationContext: ['groups' => ['user_activity:write']],
-            security: 'is_granted("ACTIVITY_MEMBER_MANAGE", object)',
+            security: 'is_granted("ACTIVITY_MEMBER_MANAGE", object) or is_granted("ACTIVITY_SELF_LEAVE", object)',
             processor: UserActivityStatusProcessor::class,
         ),
         // Désinscrire

@@ -72,10 +72,17 @@ final class UserActivityProcessor implements ProcessorInterface
             }
         }
 
-        // Vérifier l'unicité
+        // Upsert : si déjà inscrit avec un rôle différent → on change le rôle
         $existing = $this->userActivityRepository->findOneBy(['member' => $member, 'activity' => $activity]);
         if ($existing !== null) {
-            throw new ConflictHttpException('Cet utilisateur est déjà inscrit à cette activité.');
+            if ($existing->getRole() === $role) {
+                throw new ConflictHttpException('Cet utilisateur est déjà inscrit à cette activité avec ce rôle.');
+            }
+            // Changement de rôle → mise à jour
+            $existing->setRole($role);
+            $existing->setStatus(UserActivityStatus::APPROVED);
+            $this->em->flush();
+            return $existing;
         }
 
         $userActivity = new UserActivity();
