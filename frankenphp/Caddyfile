@@ -47,7 +47,13 @@
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
-	header ?Permissions-Policy "browsing-topics=()"
+	header {
+		?Permissions-Policy "browsing-topics=()"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	}
 
 	@phpRoute {
 		not path /.well-known/mercure*
