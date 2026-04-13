@@ -39,8 +39,9 @@ final class ClubAdminStatsProvider implements ProviderInterface
         $user    = $this->security->getUser();
         $members = $this->userClubRepository->findByClub($club);
 
-        $membersCount        = count($members);
-        $teachersCount       = count(array_filter($members, fn($uc) => in_array('TEACHER', $uc->getRoles())));
+        $validatedMembers = array_filter($members, fn($uc) => $uc->getValidatedAt() !== null);
+        $membersCount     = count($validatedMembers);
+        $teachersCount    = count(array_filter($validatedMembers, fn($uc) => in_array('TEACHER', $uc->getRoles())));
         $activitiesCount     = count($this->activityRepository->findBy(['club' => $club]));
         $pendingEnrollments  = $this->userActivityRepository->countPendingByClub($club);
         $pendingMembers      = $this->userClubRepository->countPendingMembers($club);

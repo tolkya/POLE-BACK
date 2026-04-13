@@ -49,6 +49,16 @@ final class SkillMediaTutoProcessor implements ProcessorInterface
             throw new BadRequestHttpException('Aucun fichier reçu.');
         }
 
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime', 'video/webm'];
+        if (!in_array($uploadedFile->getMimeType(), $allowedMimes, true)) {
+            throw new BadRequestHttpException('Type de fichier non autorisé. Formats acceptés : JPG, PNG, WebP, GIF, MP4, MOV, WebM.');
+        }
+
+        $maxSize = 50 * 1024 * 1024; // 50 Mo
+        if ($uploadedFile->getSize() > $maxSize) {
+            throw new BadRequestHttpException('Fichier trop volumineux. Taille maximale : 50 Mo.');
+        }
+
         $tuto = new SkillMediaTuto();
         $tuto->setSkill($skill);
         $tuto->setCreatedBy($currentUser);

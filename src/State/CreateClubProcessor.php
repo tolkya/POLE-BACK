@@ -30,6 +30,7 @@ class CreateClubProcessor implements ProcessorInterface
         $userClub->setMember($user);
         $userClub->setClub($club);
         $userClub->setRoles(['ADMIN']);
+        $userClub->setValidatedAt(new \DateTimeImmutable());
 
         $this->em->persist($club);
         $this->em->persist($userClub);

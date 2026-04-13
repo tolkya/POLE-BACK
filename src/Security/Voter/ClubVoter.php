@@ -54,9 +54,11 @@ final class ClubVoter extends Voter
 
     private function isClubMember(User $user, Club $club): bool
     {
-        return $this->userClubRepository->findOneBy([
+        $userClub = $this->userClubRepository->findOneBy([
             'member' => $user,
-            'club' => $club,
-        ]) !== null;
+            'club'   => $club,
+        ]);
+
+        return $userClub !== null && $userClub->getValidatedAt() !== null;
     }
 }
