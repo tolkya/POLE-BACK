@@ -10,7 +10,18 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Patch;
 
+#[ApiResource(
+    operations: [
+        new Patch(
+            security: "is_granted('USER_EDIT', object)",
+            denormalizationContext: ['groups' => ['user:write']],
+            normalizationContext: ['groups' => ['user:me']],
+        ),
+    ]
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -25,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Groups(['club_member:read', 'user_activity:read', 'user:me'])]
+    #[Groups(['club_member:read', 'user_activity:read', 'user:me', 'user:write'])]
     private ?string $email = null;
 
     /**
@@ -59,14 +70,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
+    #[Groups(['user:me', 'user:write'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read', 'skill_media_tuto:read', 'skill:read', 'level:read', 'user:me'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read', 'skill_media_tuto:read', 'skill:read', 'level:read', 'user:me', 'user:write'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read', 'skill_media_tuto:read', 'skill:read', 'level:read', 'user:me'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Groups(['receipt:read', 'club_member:read', 'user_activity:read', 'skill_media_tuto:read', 'skill:read', 'level:read', 'user:me', 'user:write'])]
     private ?string $lastName = null;
 
     public function __construct()
