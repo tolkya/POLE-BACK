@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Patch;
+use App\State\UserProfilePatchProcessor;
 
 #[ApiResource(
     operations: [
@@ -19,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
             security: "is_granted('USER_EDIT', object)",
             denormalizationContext: ['groups' => ['user:write']],
             normalizationContext: ['groups' => ['user:me']],
+            processor: UserProfilePatchProcessor::class,
         ),
     ]
 )]

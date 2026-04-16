@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/users/{id}/change-password',
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             processor: UserPasswordChangeProcessor::class,
+            status: 204,
+            output: false,
         ),
     ],
 )]
