@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\LevelValue;
 use App\Repository\LevelRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -49,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[ORM\Entity(repositoryClass: LevelRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_LEVEL_ACTIVITY_VALUE', columns: ['activity_id', 'value'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_LEVEL_ACTIVITY_NAME', columns: ['activity_id', 'name'])]
 class Level
 {
     #[ORM\Id]
@@ -62,10 +61,15 @@ class Level
     #[ORM\JoinColumn(nullable: false)]
     private ?Activity $activity = null;
 
-    #[ORM\Column(length: 20, enumType: LevelValue::class)]
-    #[Assert\NotNull]
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom du niveau est obligatoire.')]
+    #[Assert\Length(max: 100, maxMessage: 'Le nom ne peut pas dépasser 100 caractères.')]
     #[Groups(['level:read', 'level:write', 'activity:read'])]
-    private ?LevelValue $value = null;
+    private ?string $name = null;
+
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Groups(['level:read'])]
+    private int $position = 0;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['level:read', 'level:write'])]
@@ -89,7 +93,7 @@ class Level
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->skills = new ArrayCollection();
+        $this->skills    = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,14 +113,26 @@ class Level
         return $this;
     }
 
-    public function getValue(): ?LevelValue
+    public function getName(): ?string
     {
-        return $this->value;
+        return $this->name;
     }
 
-    public function setValue(LevelValue $value): static
+    public function setName(string $name): static
     {
-        $this->value = $value;
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
 
         return $this;
     }
@@ -178,7 +194,6 @@ class Level
     public function removeSkill(Skill $skill): static
     {
         if ($this->skills->removeElement($skill)) {
-            // set the owning side to null (unless already changed)
             if ($skill->getLevel() === $this) {
                 $skill->setLevel(null);
             }
