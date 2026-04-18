@@ -8,7 +8,7 @@ lexik_jwt_authentication:
             enabled: true
             name: jwt
         authorization_header:
-            enabled: false
+            enabled: true
     set_cookies:
         jwt:
             lifetime: null
