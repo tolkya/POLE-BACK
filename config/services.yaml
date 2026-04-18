@@ -41,3 +41,7 @@ services:
     App\Serializer\ActivityMediaNormalizer:
         arguments:
             $normalizer: '@api_platform.serializer.normalizer.item'
+    
+    App\Controller\MobileLoginController:
+        arguments:
+            $loginLimiter: '@limiter.login'
