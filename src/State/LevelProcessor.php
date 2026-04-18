@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final class LevelProcessor implements ProcessorInterface
 {
@@ -65,7 +66,11 @@ final class LevelProcessor implements ProcessorInterface
         }
 
         $this->em->persist($level);
-        $this->em->flush();
+        try {
+            $this->em->flush();
+        } catch (UniqueConstraintViolationException $e) {
+            throw new \Symfony\Component\HttpKernel\Exception\HttpException(409, 'Un niveau avec ce nom existe déjà pour cette activité.');
+        }
 
         return $level;
     }
