@@ -61,7 +61,7 @@ class SkillMediaTuto
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['skill_media_tuto:read'])]
+    #[Groups(['skill_media_tuto:read', 'skill:read'])]
     private ?User $createdBy = null;
 
     #[ORM\Column]
